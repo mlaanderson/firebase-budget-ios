@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 enum TableRows : Int {
-    case date = 1, category, name, deposit, cash, transfer, check, amount, paid, note
+    case date = 0, category, name, deposit, cash, transfer, check, amount, paid, note
 }
 
 struct TransactionData {
@@ -78,6 +78,7 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
     @IBOutlet weak var txtAmount: UITextField!
     @IBOutlet weak var swPaid: UISwitch!
     @IBOutlet weak var txtNote: UITextView!
+    @IBOutlet weak var recurringButton: UIBarButtonItem!
     
     func setTransaction(_ transaction: Transaction?) {
         if transaction != nil {
@@ -126,17 +127,11 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
         // set the loaded transaction
         if self.transaction != nil {
             self.datePicker.date = Date.parseFb(value: (self.transaction?.date)!)!
+            
             lblDate.text = "Date: " + Formatters.EditDate.string(from: self.datePicker.date)
             lblCategory.text = "Category: " + transaction!.category
         
-            if self.categories != nil {
-                if let idx = self.categories!.index(of: (self.transaction?.category)!) {
-                    self.categoryPicker.selectRow(idx, inComponent: 0, animated: false)
-                }
-                
-                self.categoryPicker.dataSource = self
-                self.categoryPicker.delegate = self
-            }
+
             
             txtName.text = transaction!.name
             swDeposit.isOn = transaction!.amount > 0
@@ -146,11 +141,24 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
             txtAmount.text = Formatters.NumberEdit.string(from: abs(transaction!.amount) as NSNumber)
             swPaid.isOn = transaction!.paid
             txtNote.text = transaction?.note ?? ""
+            recurringButton.isEnabled = transaction?.recurring != nil
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        if self.categories != nil {
+            let selectedCategory = self.transaction?.category ?? self.categories![0]
+            let catIndex = self.categories?.firstIndex(of: selectedCategory) ?? 0
+            
+            self.categoryPicker.selectRow(catIndex, inComponent: 0, animated: true)
+            
+            self.categoryPicker.dataSource = self
+            self.categoryPicker.delegate = self
         }
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        switch (TableRows(rawValue: indexPath.row) ?? .cash) {
+        switch TableRows(rawValue: indexPath.row) ?? .cash {
         case .amount:
             self.txtName.resignFirstResponder()
             self.txtCheck.resignFirstResponder()
@@ -223,24 +231,27 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        if indexPath.row == 1 {
-            if self.dateCellExpanded {
-                return 250
-            } else {
-                // update the transaction date
-                lblDate.text = "Date: " + Formatters.EditDate.string(from: self.datePicker.date)
-            }
-        }
-        if indexPath.row == 2 {
+        switch TableRows(rawValue: indexPath.row) ?? .cash {
+        case .date:
+            return self.dateCellExpanded ? 250 : 50
+        case .category:
             if self.catCellExpanded {
-                return 250
+                if self.categories != nil {
+                    let selectedCategory = self.transaction?.category ?? self.categories![0]
+                    let catIndex = self.categories?.firstIndex(of: selectedCategory) ?? 0
+                    
+                    self.categoryPicker.selectRow(catIndex, inComponent: 0, animated: true)
+                    
+                    self.categoryPicker.dataSource = self
+                    self.categoryPicker.delegate = self
+                }
             }
-        }
-        if indexPath.row == 10 {
+            return self.catCellExpanded ? 250 : 50
+        case .note:
             return 200
+        default:
+            return 50
         }
-        
-        return 50
     }
     
     //MARK: Actions
@@ -249,6 +260,10 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
         self.transaction!.date = self.datePicker.date.toFbString()
         lblDate.text = "Date: " + Formatters.EditDate.string(from: self.datePicker.date)
         self.transaction!.date = self.datePicker.date.toFbString()
+    }
+    
+    @IBAction func recurringDidTouch(_ sender: UIBarButtonItem) {
+        print("Touched recurring edit")
     }
     
     @IBAction func cancelDidTouch(_ sender: UIBarButtonItem) {

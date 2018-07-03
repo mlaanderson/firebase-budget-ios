@@ -16,7 +16,6 @@ class BudgetTableViewCell : UITableViewCell {
     var transaction: Transaction?
     
     @IBOutlet weak var dateTextLabel: UILabel!
-    @IBOutlet weak var categoryTextLabel: UILabel!
     @IBOutlet weak var nameTextLabel: UILabel!
     @IBOutlet weak var amountTextLabel: UILabel!
     @IBOutlet weak var recurringTextLabel: UILabel!
@@ -29,8 +28,7 @@ class BudgetTableViewCell : UITableViewCell {
         self.transaction = transaction
         
         self.nameTextLabel?.text = transaction.name
-        self.categoryTextLabel?.text = transaction.category
-        self.dateTextLabel?.text = transaction.date
+        self.dateTextLabel?.text = Formatters.ViewDate.string(for: Date.parseFb(value: transaction.date))
         self.amountTextLabel?.text = Formatters.Currency.string(from: transaction.amount as NSNumber)
         
         self.cashTextLabel.isHidden = transaction.cash == false
@@ -207,14 +205,16 @@ class BudgetController: UITableViewController {
     //MARK: Segues
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "transactionEditorSegue" {
-            if let transactionEditor = segue.destination as? TransactionEditorControler {
-                transactionEditor.categories = self.budget.config.categories
-                transactionEditor.transactions = self.budget.transactions
+            if let transactionNavigator = segue.destination as? UINavigationController {
+                    if let transactionEditor = transactionNavigator.topViewController as? TransactionEditorControler {
+                    transactionEditor.categories = self.budget.config.categories
+                    transactionEditor.transactions = self.budget.transactions
 
-                transactionEditor.setTransaction(self.activeTransaction)
-                
-                self.activeTransaction = nil
-                self.editButton.isEnabled = false
+                    transactionEditor.setTransaction(self.activeTransaction)
+                    
+                    self.activeTransaction = nil
+                    self.editButton.isEnabled = false
+                }
             }
         }
     }
