@@ -10,13 +10,10 @@ import Foundation
 import UIKit
 import FirebaseAuth
 
-class MenuViewController: UITableViewController {
+class MenuViewController: UIViewController {
     var budgetView: BudgetController?
-    
-    @IBAction func returnDidTouch(_ sender: UIButton) {
-        self.dismiss(animated: true, completion: nil)
-    }
-    
+
+
     @IBAction func logoutDidTouch(_ sender: UIButton) {
         self.dismiss(animated: true) {
             do {

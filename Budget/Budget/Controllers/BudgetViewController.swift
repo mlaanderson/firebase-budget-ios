@@ -50,7 +50,7 @@ class BudgetTableViewCell : UITableViewCell {
     }
 }
 
-class BudgetController: UITableViewController {
+class BudgetController: UITableViewController, UIPopoverPresentationControllerDelegate {
     var transactionEditorSegue = "transactionEditorSegue"
     var budget: BudgetData!
     var user : User!
@@ -90,9 +90,6 @@ class BudgetController: UITableViewController {
 
     @IBAction func dateLabelDidTouch(_ sender: UIBarButtonItem) {
 
-        let vc = (storyboard?.instantiateViewController(withIdentifier: "PeriodPickerDialog"))! as! DatePickerDialog
-        vc.attachBudget(periods: self.periods, current: self.budget.period, budget: self.budget, parentView: self)
-        self.present(vc, animated: true)
     }
 
     
@@ -213,14 +210,27 @@ class BudgetController: UITableViewController {
                 }
             }
             break
-        case "viewMenu":
+        case "viewMenuSegue":
             if let menu = segue.destination as? MenuViewController {
                 menu.budgetView = self
+                menu.modalPresentationStyle = .popover
+                menu.popoverPresentationController!.delegate = self
+            }
+            break
+        case "datePickerSegue":
+            if let vc = segue.destination as? DatePickerDialog {
+                vc.attachBudget(periods: self.periods, current: self.budget.period, budget: self.budget, parentView: self)
+                vc.modalPresentationStyle = .popover
+                vc.popoverPresentationController!.delegate = self
             }
             break
         default:
             break
         }
+    }
+    
+    func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
+        return UIModalPresentationStyle.none
     }
 
     //MARK: Overrides
