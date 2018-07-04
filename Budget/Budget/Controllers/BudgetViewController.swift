@@ -18,11 +18,10 @@ class BudgetTableViewCell : UITableViewCell {
     @IBOutlet weak var dateTextLabel: UILabel!
     @IBOutlet weak var nameTextLabel: UILabel!
     @IBOutlet weak var amountTextLabel: UILabel!
-    @IBOutlet weak var recurringTextLabel: UILabel!
     @IBOutlet weak var cashTextLabel: UILabel!
     @IBOutlet weak var transferTextLabel: UILabel!
     @IBOutlet weak var paidTextLabel: UILabel!
-    
+    @IBOutlet weak var reurringButton: UIButton!
     
     func attachTransaction(_ transaction: Transaction) -> Void {
         self.transaction = transaction
@@ -32,7 +31,7 @@ class BudgetTableViewCell : UITableViewCell {
         self.amountTextLabel?.text = Formatters.Currency.string(from: transaction.amount as NSNumber)
         
         self.cashTextLabel.isHidden = transaction.cash == false
-        self.recurringTextLabel.isHidden = transaction.recurring == nil
+        self.reurringButton.isHidden = transaction.recurring == nil
         self.transferTextLabel.isHidden = transaction.transfer == false
         self.paidTextLabel.isHidden = transaction.paid == false
     }
@@ -40,11 +39,15 @@ class BudgetTableViewCell : UITableViewCell {
     func setTotal(_ total: Double) {
         self.nameTextLabel?.text = "BALANCE"
         self.cashTextLabel.isHidden = true
-        self.recurringTextLabel.isHidden = true
+        self.reurringButton.isHidden = true
         self.transferTextLabel.isHidden = true
         self.amountTextLabel.text = Formatters.Currency.string(from: total as NSNumber)
     }
     
+    
+    @IBAction func recurringDidTouch(_ sender: UIButton) {
+        print(self.transaction?.recurring ?? "NOT RECURRING")
+    }
 }
 
 class BudgetController: UITableViewController {
@@ -74,7 +77,7 @@ class BudgetController: UITableViewController {
     @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var prevButton: UIBarButtonItem!
     @IBOutlet weak var nextButton: UIBarButtonItem!
-    @IBOutlet weak var logoutButton: UIBarButtonItem!
+    @IBOutlet weak var menuButton: UIBarButtonItem!
     @IBOutlet weak var newButton: UIBarButtonItem!
     
     //MARK: Actions
@@ -91,15 +94,7 @@ class BudgetController: UITableViewController {
         vc.attachBudget(periods: self.periods, current: self.budget.period, budget: self.budget, parentView: self)
         self.present(vc, animated: true)
     }
-    
-    @IBAction func logoutDidTouch(_ sender: UIBarButtonItem) {
-        do {
-            try Auth.auth().signOut()
-            self.dismiss(animated: true, completion: nil)
-        } catch (let error) {
-            print("Auth signout error: \(error)")
-        }
-    }
+
     
     @IBAction func nextPeriodDidTouch(_ sender: UIBarButtonItem) {
         showSpinner()
@@ -204,7 +199,8 @@ class BudgetController: UITableViewController {
     
     //MARK: Segues
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        if segue.identifier == "transactionEditorSegue" {
+        switch segue.identifier {
+        case "transactionEditorSegue":
             if let transactionNavigator = segue.destination as? UINavigationController {
                     if let transactionEditor = transactionNavigator.topViewController as? TransactionEditorControler {
                     transactionEditor.categories = self.budget.config.categories
@@ -216,6 +212,14 @@ class BudgetController: UITableViewController {
                     self.editButton.isEnabled = false
                 }
             }
+            break
+        case "viewMenu":
+            if let menu = segue.destination as? MenuViewController {
+                menu.budgetView = self
+            }
+            break
+        default:
+            break
         }
     }
 
@@ -224,21 +228,28 @@ class BudgetController: UITableViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         self.showSpinner()
-        let user = Firebase.Auth.auth().currentUser
-        self.budget = BudgetData(Database.database().reference().child((user?.uid)!))
-       
-        var _ = self.budget!.on(.configRead) { nilval in
-            var date = self.budget.config.startDate
-            
-            self.periods = []
-            
-            repeat {
-                self.periods.append(self.budget.config.calculatePeriod(date: date))
-                date = date + self.budget.config.length
-            } while date < Date.today() + "5 years"
-            
-            self.startListeners()
-            self.budget!.gotoDate(Date.today())
+        
+        // verify the user
+        Auth.auth().addStateDidChangeListener() { auth, user in
+            if (user == nil) {
+                self.dismiss(animated: true, completion: nil)
+            } else {
+                self.budget = BudgetData(Database.database().reference().child((user?.uid)!))
+                
+                var _ = self.budget!.on(.configRead) { nilval in
+                    var date = self.budget.config.startDate
+                    
+                    self.periods = []
+                    
+                    repeat {
+                        self.periods.append(self.budget.config.calculatePeriod(date: date))
+                        date = date + self.budget.config.length
+                    } while date < Date.today() + "5 years"
+                    
+                    self.startListeners()
+                    self.budget!.gotoDate(Date.today())
+                }
+            }
         }
     }
     
@@ -248,6 +259,75 @@ class BudgetController: UITableViewController {
     }
     
     //MARK: Data functions
+    
+    func showTransfers() -> Void {
+        let title = "Transfer \(budget.transactions.Transfer < 0 ? "into" : "from") Savings"
+        let message = "Transfer \(Formatters.Currency.string(from: abs(budget.transactions.Transfer) as NSNumber) ?? "$0.00")"
+        let dialog = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        dialog.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        self.present(dialog, animated: true, completion: nil)
+    }
+    
+    func showCash() -> Void {
+        let title = "Cash Withdrawl"
+        var message = ""
+        let cash = budget.transactions.Cash
+        
+        if cash.hundreds != 0 {
+            message += "\(cash.hundreds) x $100 bill\(cash.hundreds == 1 ? "" : "s") \t(\(Formatters.Currency.string(from: Double(cash.hundreds) * 100.0 as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.fifties != 0 {
+            message += "\(cash.fifties) x $50 bill\(cash.fifties == 1 ? "\t" : "s")\t(\(Formatters.Currency.string(from: Double(cash.fifties) * 50.0 as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.twenties != 0 {
+            message += "\(cash.twenties) x $20 bill\(cash.twenties == 1 ? "\t" : "s")\t(\(Formatters.Currency.string(from: Double(cash.twenties) * 20.0 as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.tens != 0 {
+            message += "\(cash.tens) x $10 bill\(cash.tens == 1 ? "\t" : "s")\t(\(Formatters.Currency.string(from: Double(cash.tens) * 10.0 as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.fives != 0 {
+            message += "\(cash.fives) x $5 bill\(cash.fives == 1 ? "\t" : "s")\t(\(Formatters.Currency.string(from: Double(cash.fives) * 5.0 as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.ones != 0 {
+            message += "\(cash.ones) x $1 bill\(cash.ones == 1 ? "\t" : "s")\t(\(Formatters.Currency.string(from: Double(cash.ones) as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.quarters != 0 {
+            message += "\(cash.quarters) x Quarter\(cash.quarters == 1 ? "" : "s")\t(\(Formatters.Currency.string(from: Double(cash.quarters) * 0.25 as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.dimes != 0 {
+            message += "\(cash.dimes) x Dime\(cash.dimes == 1 ? "" : "s")\t(\(Formatters.Currency.string(from: Double(cash.dimes) * 0.1 as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.nickels != 0 {
+            message += "\(cash.nickels) x Nickel\(cash.nickels == 1 ? "" : "s")\t(\(Formatters.Currency.string(from: Double(cash.nickels) * 0.05 as NSNumber) ?? ""))\n"
+        }
+        
+        if cash.pennies != 0 {
+            message += "\(cash.pennies) x Penn\(cash.pennies == 1 ? "y" : "ies")\t(\(Formatters.Currency.string(from: Double(cash.pennies) * 0.01 as NSNumber) ?? ""))\n"
+        }
+        
+        message += "\n\t\t\t\t\(Formatters.Currency.string(from: Double(cash) as NSNumber) ?? "No cash withdrawal")"
+
+        let paragraphStyle = NSMutableParagraphStyle()
+        paragraphStyle.alignment = .left
+        let dialog = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let messageText = NSMutableAttributedString(
+            string: message,
+            attributes: [
+                .paragraphStyle : paragraphStyle
+            ]
+        )
+        dialog.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+        dialog.setValue(messageText, forKey: "attributedMessage")
+        self.present(dialog, animated: true, completion: nil)
+    }
     
     func startListeners() -> Void {
         let _ = self.budget.on(.loadPeriod, handler: self.loadTransactions)
@@ -317,7 +397,7 @@ class BudgetController: UITableViewController {
                 self.spinner = nil
             }
             
-            self.logoutButton.isEnabled = true
+            self.menuButton.isEnabled = true
             self.prevButton.isEnabled = self.budget.CanGoBack
             self.nextButton.isEnabled = true
             self.dateLabel.isEnabled = true

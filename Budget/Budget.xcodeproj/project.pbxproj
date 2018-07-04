@@ -30,6 +30,7 @@
 		836E897520E9390B006A4C56 /* DatePickerDialog.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836E897420E9390B006A4C56 /* DatePickerDialog.swift */; };
 		836E897720E94B96006A4C56 /* UIViewSpinner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836E897620E94B96006A4C56 /* UIViewSpinner.swift */; };
 		836E897920E96111006A4C56 /* CurrencyField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 836E897820E96111006A4C56 /* CurrencyField.swift */; };
+		837718A420ED09A700111192 /* MenuViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 837718A320ED09A700111192 /* MenuViewController.swift */; };
 		8378C79620CC89EC00A948BF /* BudgetViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8378C79520CC89EC00A948BF /* BudgetViewController.swift */; };
 		838F8EFA20D8A6D400A76DEA /* TransactionEditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 838F8EF920D8A6D400A76DEA /* TransactionEditorController.swift */; };
 		83A6E83620E034B900C69D42 /* BudgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A6E83520E034B900C69D42 /* BudgetData.swift */; };
@@ -90,6 +91,7 @@
 		836E897420E9390B006A4C56 /* DatePickerDialog.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatePickerDialog.swift; sourceTree = "<group>"; };
 		836E897620E94B96006A4C56 /* UIViewSpinner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UIViewSpinner.swift; sourceTree = "<group>"; };
 		836E897820E96111006A4C56 /* CurrencyField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrencyField.swift; sourceTree = "<group>"; };
+		837718A320ED09A700111192 /* MenuViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MenuViewController.swift; sourceTree = "<group>"; };
 		8378C79520CC89EC00A948BF /* BudgetViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetViewController.swift; sourceTree = "<group>"; };
 		838F8EF920D8A6D400A76DEA /* TransactionEditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionEditorController.swift; sourceTree = "<group>"; };
 		83A6E83520E034B900C69D42 /* BudgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetData.swift; sourceTree = "<group>"; };
@@ -244,6 +246,7 @@
 				8340BBEB20C8CA6D00D97447 /* LoginController.swift */,
 				836E897420E9390B006A4C56 /* DatePickerDialog.swift */,
 				8378C79520CC89EC00A948BF /* BudgetViewController.swift */,
+				837718A320ED09A700111192 /* MenuViewController.swift */,
 				838F8EF920D8A6D400A76DEA /* TransactionEditorController.swift */,
 				836E897820E96111006A4C56 /* CurrencyField.swift */,
 			);
@@ -515,6 +518,7 @@
 				8340BBEA20C8CA6D00D97447 /* AppDelegate.swift in Sources */,
 				83F14B5820CDD55200038A05 /* DateExt.swift in Sources */,
 				838F8EFA20D8A6D400A76DEA /* TransactionEditorController.swift in Sources */,
+				837718A420ED09A700111192 /* MenuViewController.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

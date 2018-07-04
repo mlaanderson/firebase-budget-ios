@@ -124,14 +124,19 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
         
         tableView.tableFooterView = UIView()
         
+        // setup the row heights
+        tableView.rowHeight = UITableViewAutomaticDimension
+        tableView.estimatedRowHeight = 44
+        
+        self.categoryPicker.dataSource = self
+        self.categoryPicker.delegate = self
+
         // set the loaded transaction
         if self.transaction != nil {
             self.datePicker.date = Date.parseFb(value: (self.transaction?.date)!)!
             
             lblDate.text = "Date: " + Formatters.EditDate.string(from: self.datePicker.date)
             lblCategory.text = "Category: " + transaction!.category
-        
-
             
             txtName.text = transaction!.name
             swDeposit.isOn = transaction!.amount > 0
@@ -149,11 +154,8 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
         if self.categories != nil {
             let selectedCategory = self.transaction?.category ?? self.categories![0]
             let catIndex = self.categories?.firstIndex(of: selectedCategory) ?? 0
-            
+
             self.categoryPicker.selectRow(catIndex, inComponent: 0, animated: true)
-            
-            self.categoryPicker.dataSource = self
-            self.categoryPicker.delegate = self
         }
     }
     
@@ -164,13 +166,16 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
             self.txtCheck.resignFirstResponder()
             self.txtNote.resignFirstResponder()
             self.txtAmount.becomeFirstResponder()
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = true
             break
         case .cash:
             self.txtAmount.resignFirstResponder()
             self.txtName.resignFirstResponder()
             self.txtCheck.resignFirstResponder()
             self.txtNote.resignFirstResponder()
-            self.swCash.isOn = !self.swCash.isOn
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = true
             break
         case .category:
             self.txtAmount.resignFirstResponder()
@@ -178,79 +183,77 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
             self.txtCheck.resignFirstResponder()
             self.txtNote.resignFirstResponder()
             self.catCellExpanded = !self.catCellExpanded
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = !self.categoryPicker.isHidden
+            break
         case .check:
             self.txtAmount.resignFirstResponder()
             self.txtName.resignFirstResponder()
             self.txtCheck.becomeFirstResponder()
             self.txtNote.resignFirstResponder()
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = true
             break
         case .date:
             self.txtAmount.resignFirstResponder()
             self.txtName.resignFirstResponder()
             self.txtCheck.resignFirstResponder()
             self.txtNote.resignFirstResponder()
-            self.dateCellExpanded = !self.dateCellExpanded
+            self.datePicker.isHidden = !self.datePicker.isHidden
+            self.categoryPicker.isHidden = true
             break
         case .deposit:
             self.txtAmount.resignFirstResponder()
             self.txtName.resignFirstResponder()
             self.txtCheck.resignFirstResponder()
             self.txtNote.resignFirstResponder()
-            self.swDeposit.isOn = !self.swDeposit.isOn
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = true
             break
         case .name:
             self.txtAmount.resignFirstResponder()
             self.txtName.becomeFirstResponder()
             self.txtCheck.resignFirstResponder()
             self.txtNote.resignFirstResponder()
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = true
             break
         case .note:
             self.txtAmount.resignFirstResponder()
             self.txtName.resignFirstResponder()
             self.txtCheck.resignFirstResponder()
             self.txtNote.becomeFirstResponder()
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = true
             break
         case .paid:
             self.txtAmount.resignFirstResponder()
             self.txtName.resignFirstResponder()
             self.txtCheck.resignFirstResponder()
             self.txtNote.resignFirstResponder()
-            self.swPaid.isOn = !self.swPaid.isOn
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = true
             break
         case .transfer:
             self.txtAmount.resignFirstResponder()
             self.txtName.resignFirstResponder()
             self.txtCheck.resignFirstResponder()
             self.txtNote.resignFirstResponder()
-            self.swTransfer.isOn = !self.swTransfer.isOn
+            self.datePicker.isHidden = true
+            self.categoryPicker.isHidden = true
             break
         }
-        tableView.deselectRow(at: indexPath, animated: false)
+        tableView.deselectRow(at: indexPath, animated: true)
         tableView.beginUpdates()
         tableView.endUpdates()
     }
     
     override func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch TableRows(rawValue: indexPath.row) ?? .cash {
-        case .date:
-            return self.dateCellExpanded ? 250 : 50
-        case .category:
-            if self.catCellExpanded {
-                if self.categories != nil {
-                    let selectedCategory = self.transaction?.category ?? self.categories![0]
-                    let catIndex = self.categories?.firstIndex(of: selectedCategory) ?? 0
-                    
-                    self.categoryPicker.selectRow(catIndex, inComponent: 0, animated: true)
-                    
-                    self.categoryPicker.dataSource = self
-                    self.categoryPicker.delegate = self
-                }
-            }
-            return self.catCellExpanded ? 250 : 50
         case .note:
             return 200
         default:
-            return 50
+            return UITableViewAutomaticDimension
         }
     }
     
