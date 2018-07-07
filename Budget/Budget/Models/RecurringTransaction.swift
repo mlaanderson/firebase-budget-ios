@@ -18,6 +18,8 @@ class RecurringTransaction: BudgetRecord {
     var period: String
     var start: String
     var transfer: Bool
+    var active: String?
+    var delete: String?
     
     var deposit : Bool {
         get { return amount >= 0 }
@@ -73,6 +75,8 @@ class RecurringTransaction: BudgetRecord {
         self.cash = value["cash"] as? Bool ?? false
         self.note = value["note"] as? String
         self.transfer = value["transfer"] as? Bool ?? false
+        self.active = value["active"] as? String
+        self.delete = value["delete"] as? String
         
         return true
     }
@@ -89,7 +93,9 @@ class RecurringTransaction: BudgetRecord {
         
         // nil values are ignored on the firebase end, just set them
         result["note"] = self.note
-        
+        result["delete"] = self.delete
+        result["active"] = self.active
+
         // avoid storing false boolean values since nils are also parsed
         if self.cash { result["cash"] = true }
         if self.transfer { result["transfer"] = true }

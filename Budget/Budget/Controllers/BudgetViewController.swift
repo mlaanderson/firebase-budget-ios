@@ -14,6 +14,7 @@ import FirebaseAuth
 
 class BudgetTableViewCell : UITableViewCell {
     var transaction: Transaction?
+    var budget: BudgetController?
     
     @IBOutlet weak var dateTextLabel: UILabel!
     @IBOutlet weak var nameTextLabel: UILabel!
@@ -23,8 +24,9 @@ class BudgetTableViewCell : UITableViewCell {
     @IBOutlet weak var paidTextLabel: UILabel!
     @IBOutlet weak var reurringButton: UIButton!
     
-    func attachTransaction(_ transaction: Transaction) -> Void {
+    func attachTransaction(_ transaction: Transaction, _ budget: BudgetController) -> Void {
         self.transaction = transaction
+        self.budget = budget
         
         self.nameTextLabel?.text = transaction.name
         self.dateTextLabel?.text = Formatters.ViewDate.string(for: Date.parseFb(value: transaction.date))
@@ -46,7 +48,12 @@ class BudgetTableViewCell : UITableViewCell {
     
     
     @IBAction func recurringDidTouch(_ sender: UIButton) {
-        print(self.transaction?.recurring ?? "NOT RECURRING")
+        guard
+        self.budget != nil,
+        self.transaction != nil,
+        self.transaction?.recurring != nil
+            else { return }
+        self.budget?.editRecurring(self.transaction!.recurring!)
     }
 }
 
@@ -79,8 +86,28 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     @IBOutlet weak var nextButton: UIBarButtonItem!
     @IBOutlet weak var menuButton: UIBarButtonItem!
     @IBOutlet weak var newButton: UIBarButtonItem!
+    @IBOutlet weak var recurringButton: UIBarButtonItem!
+    @IBOutlet weak var redoButton: UIBarButtonItem!
+    @IBOutlet weak var undoButton: UIBarButtonItem!
     
     //MARK: Actions
+    @IBAction func undoDidTouch(_ sender: UIBarButtonItem) {
+        guard
+        self.budget != nil,
+        self.budget.canUndo
+            else { return }
+        
+        self.budget.undo()
+    }
+    
+    @IBAction func redoDidTouch(_ sender: UIBarButtonItem) {
+        guard
+            self.budget != nil,
+            self.budget.canRedo
+            else { return }
+        
+        self.budget.redo()
+    }
     
     @IBAction func editButtonDidTouch(_ sender: UIBarButtonItem) {
         if self.activeTransaction != nil {
@@ -88,10 +115,9 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
         }
     }
 
-    @IBAction func dateLabelDidTouch(_ sender: UIBarButtonItem) {
-
+    @IBAction func recurringButtonDidTouch(_ sender: UIBarButtonItem) {
+        performSegue(withIdentifier: "recurringSegue", sender: nil)
     }
-
     
     @IBAction func nextPeriodDidTouch(_ sender: UIBarButtonItem) {
         showSpinner()
@@ -141,11 +167,13 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
         let cell = tableView.dequeueReusableCell(withIdentifier: "ItemCell", for: indexPath) as! BudgetTableViewCell
         if self.Ready {
             if indexPath.section < self.Categories.count {
-                let transaction = items.filter( { item in
+                let transactions = items.filter( { item in
                     return item.category == self.Categories[indexPath.section]
-                })[indexPath.row]
+                })
                 
-                cell.attachTransaction(transaction)
+                if transactions.count > indexPath.row {
+                    cell.attachTransaction(transactions[indexPath.row], self)
+                }
             } else {
                 cell.setTotal(self.total)
             }
@@ -224,6 +252,14 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
                 vc.popoverPresentationController!.delegate = self
             }
             break
+        case "recurringSegue":
+            if let nvc = segue.destination as? UINavigationController {
+                if let vc = nvc.topViewController as? RecurringEditorController {
+                    vc.budget = self.budget
+                    vc.transaction = sender as? RecurringTransaction
+                }
+            }
+            break
         default:
             break
         }
@@ -232,11 +268,19 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     func adaptivePresentationStyle(for controller: UIPresentationController) -> UIModalPresentationStyle {
         return UIModalPresentationStyle.none
     }
+    
+    func editRecurring(_ id: String) {
+        self.budget.recurrings.load(key: id) { transaction in
+            self.performSegue(withIdentifier: "recurringSegue", sender: transaction)
+        }
+    }
 
     //MARK: Overrides
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        self.menuButton.title = "\u{2699}\u{0000fe0e}"
         self.showSpinner()
         
         // verify the user
@@ -323,11 +367,18 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
             message += "\(cash.pennies) x Penn\(cash.pennies == 1 ? "y" : "ies")\t(\(Formatters.Currency.string(from: Double(cash.pennies) * 0.01 as NSNumber) ?? ""))\n"
         }
         
-        message += "\n\t\t\t\t\(Formatters.Currency.string(from: Double(cash) as NSNumber) ?? "No cash withdrawal")"
+        message += "\n\t\t\t\(Formatters.Currency.string(from: Double(cash) as NSNumber) ?? "No cash withdrawal")"
 
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .left
+        let terms = NSTextTab.columnTerminators(for: NSLocale.current)
+        let tabStop0 = NSTextTab(textAlignment: .left, location: 0, options: [.columnTerminators:terms])
+        let tabStop1 = NSTextTab(textAlignment: .right , location: 300, options: [.columnTerminators:terms])
         let dialog = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        
+        paragraphStyle.addTabStop(tabStop0)
+        paragraphStyle.addTabStop(tabStop1)
+        
         let messageText = NSMutableAttributedString(
             string: message,
             attributes: [
@@ -344,6 +395,11 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
         let _ = self.budget.transactions.on(.childChanged, handler: self.changeTransaction)
         let _ = self.budget.transactions.on(.childRemoved, handler: self.removeTransaction)
         let _ = self.budget.transactions.on(.childAdded, handler: self.addTransaction)
+        
+        let _ = self.budget.on(.historyChanged) { _ in
+            self.undoButton.isEnabled = self.budget.canUndo
+            self.redoButton.isEnabled = self.budget.canRedo
+        }
     }
     
     func addTransaction(_ data: Historical<Transaction>?) {
@@ -351,13 +407,15 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
             if self.budget.transactions.Start! <= data!.current.date && data!.current.date <= self.budget.transactions.End! {
                 self.items.append(data!.current)
                 sortTransactions()
+                self.Categories = self.budget.Categories
             }
-        }
-        self.Categories = self.budget.Categories
-        self.budget.transactions.getTotal() { total in
-            self.total = total
+            self.total = self.budget.transactions.total
             self.tableView.reloadData()
         }
+//        self.budget.transactions.getTotal() { total in
+//            self.total = total
+//            self.tableView.reloadData()
+//        }
     }
     
     func removeTransaction(_ data: Historical<Transaction>?) {
@@ -365,13 +423,15 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
             if let idx = self.items.map({ $0.id }).index(of: data!.current.id) {
                 self.items.remove(at: idx)
                 sortTransactions()
+                self.Categories = self.budget.Categories
             }
-        }
-        self.Categories = self.budget.Categories
-        self.budget.transactions.getTotal() { total in
-            self.total = total
+            self.total = self.budget.transactions.total
             self.tableView.reloadData()
         }
+//        self.budget.transactions.getTotal() { total in
+//            self.total = total
+//            self.tableView.reloadData()
+//        }
     }
         
     func changeTransaction(_ data: Historical<Transaction>?) {
@@ -383,12 +443,14 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
                 self.items.append(data!.current)
             }
             sortTransactions()
-        }
-        self.Categories = self.budget.Categories
-        self.budget.transactions.getTotal() { total in
-            self.total = total
+            self.Categories = self.budget.Categories
+            self.total = self.budget.transactions.total
             self.tableView.reloadData()
         }
+//        self.budget.transactions.getTotal() { total in
+//            self.total = total
+//            self.tableView.reloadData()
+//        }
     }
     
     func loadTransactions(_: AnyObject?) {
@@ -398,21 +460,20 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
         sortTransactions()
 
         self.Categories = self.budget.Categories
-        self.budget.transactions.getTotal() { total in
-            self.total = total
-            self.tableView.reloadData()
-            
-            if self.spinner != nil {
-                UIViewController.removeSpinner(spinner: self.spinner!)
-                self.spinner = nil
-            }
-            
-            self.menuButton.isEnabled = true
-            self.prevButton.isEnabled = self.budget.CanGoBack
-            self.nextButton.isEnabled = true
-            self.dateLabel.isEnabled = true
-            self.newButton.isEnabled = true
+        self.total = self.budget.transactions.total
+        self.tableView.reloadData()
+
+        if self.spinner != nil {
+            UIViewController.removeSpinner(spinner: self.spinner!)
+            self.spinner = nil
         }
+        
+        self.menuButton.isEnabled = true
+        self.prevButton.isEnabled = self.budget.CanGoBack
+        self.nextButton.isEnabled = true
+        self.dateLabel.isEnabled = true
+        self.newButton.isEnabled = true
+        self.recurringButton.isEnabled = true
     }
     
     func sortTransactions() {

@@ -12,10 +12,13 @@ import Firebase
 class Transactions : Records<Transaction> {
     private var records: [String:Transaction] = [:]
     private var recordList: [Transaction] = []
+    private var earlierRecords: [String:Transaction] = [:]
     private var periodStart: String?
     private var periodEnd: String?
+    var total: Double
     
     override init(reference: DatabaseReference) {
+        total = 0
         super.init(reference: reference)
     }
     
@@ -39,11 +42,15 @@ class Transactions : Records<Transaction> {
             else { return }
 
         if self.inPeriod(record.date) {
+            total += record.amount
+            
             self.records[record.id!] = record
             self.populateTransactionList()
             
             self.emit(.childAddedInPeriod, Historical(record))
         } else if record.date < self.periodStart! {
+            total += record.amount
+            
             self.emit(.childAddedBeforePeriod, Historical(record))
         }
         
@@ -55,16 +62,29 @@ class Transactions : Records<Transaction> {
             self.periodStart != nil,
             self.periodEnd != nil
             else { return }
+        
+        var repopulate = false;
 
+        if let removed = self.records.removeValue(forKey: record.id!) {
+            total -= removed.amount
+            repopulate = true
+        }
+        if let removed = self.earlierRecords.removeValue(forKey: record.id!) {
+            total -= removed.amount
+            repopulate = true
+        }
+        
         if self.inPeriod(record.date) {
             self.records[record.id!] = record
+            total += record.amount
             self.populateTransactionList()
+            repopulate = false
             
             self.emit(.childChangedInPeriod, Historical(record))
-        } else {
-            if self.records.removeValue(forKey: record.id!) != nil {
-                self.populateTransactionList()
-            }
+        }
+        
+        if repopulate {
+            self.populateTransactionList()
         }
         
         self.emit(.childChanged, Historical(record))
@@ -81,8 +101,10 @@ class Transactions : Records<Transaction> {
         }
         
         if self.inPeriod(record.date) {
+            total -= record.amount
             self.emit(.childRemovedInPeriod, Historical(record))
         } else if record.date < self.periodStart! {
+            total -= record.amount
             self.emit(.childRemovedBeforePeriod, Historical(record))
         }
         
@@ -153,8 +175,18 @@ class Transactions : Records<Transaction> {
     }
     
     public func loadPeriod(start: String, end: String, completion:@escaping ([String:Transaction]) -> Void) {
-        self.loadRecordsByChild(child: "date", startAt: start, endAt: end) { records in
-            self.records = records
+        self.loadRecordsByChild(child: "date", startAt: nil, endAt: end) { records in
+            self.records = [:]
+            self.total = 0
+            
+            self.total = records.values.reduce(0.0) { result, tr in return tr.amount + result }
+            self.records = records.filter { key, tr in
+                return start <= tr.date && tr.date <= end
+            }
+            self.earlierRecords = records.filter { key, tr in
+                return tr.date < start
+            }
+            
             self.populateTransactionList()
             self.periodStart = start
             self.periodEnd = end
@@ -167,21 +199,5 @@ class Transactions : Records<Transaction> {
     public func getRecurring(id: String, completion:@escaping ([String:Transaction]) -> Void) {
         self.loadRecordsByChild(child: "recurring", startAt: id, endAt: id, completion: completion)
     }
-    
-    public func getTotal(completion:@escaping (Double) -> Void) {
-        guard
-            self.periodStart != nil,
-            self.periodEnd != nil
-            else {
-                completion(0.0)
-                return
-            }
-        
-        self.loadRecordsByChild(child: "date", startAt: nil, endAt: self.periodEnd) { records in
-            let total = records.values.map({ $0.amount }).reduce(0, +)
-            completion(total)
-        }
-    }
-    
     // TODO SEARCH
 }

@@ -12,13 +12,15 @@ import Firebase
 enum BudgetEvents: Int {
     case configRead,
     ready,
-    loadPeriod
+    loadPeriod,
+    historyChanged
 }
 
 class BudgetData : Observable<BudgetEvents, AnyObject> {
     private let root: DatabaseReference
     private var account: DatabaseReference?
     private var isReady: Bool = false
+    private lazy var history: HistoryManager = { return HistoryManager(self) }()
     var period: Period = Period(start: Date.today(), end: Date.today() + "2 weeks" - "1 day")
     
     var config: Configuration = Configuration(data: ["categories":[], "periods": ["start":"2016-06-24","length":"2 weeks"]] as AnyObject)!
@@ -97,64 +99,98 @@ class BudgetData : Observable<BudgetEvents, AnyObject> {
     }
     
     func saveTransaction(_ transaction: Transaction)  {
-        self.transactions.save(record: transaction) { id in
-            // populate for undo/redo
+        if let id = transaction.id {
+            self.transactions.load(key: id) { initial in
+                self.transactions.save(record: transaction) { _ in
+                    self.history.save(transaction, initial: initial)
+                    self.emit(.historyChanged)
+                }
+            }
+        } else {
+            self.transactions.save(record: transaction) { id in
+                transaction.id = id
+                self.history.create(transaction)
+                self.emit(.historyChanged)
+            }
         }
     }
     
     func removeTransaction(_ transaction: Transaction) {
         self.transactions.remove(record: transaction) { id in
             // populate for undo/redo
+            self.history.delete(transaction)
+            self.emit(.historyChanged)
         }
     }
     
     func saveRecurring(_ transaction: RecurringTransaction) {
-        self.recurrings.save(record: transaction) { id in
-            var date = Date.periodCalc(start: self.config.start, length: self.config.length).toFbString()
-            
-            if date < self.period.start.toFbString() {
-                date = self.period.start.toFbString()
-            }
-            
-            self.transactions.getRecurring(id: id) { transactions in
-                let toDelete = transactions.values.filter({ $0.date >= date && !$0.paid })
-                for tr in toDelete {
-                    self.transactions.remove(record: tr)
+        var date = Date.periodCalc(start: self.config.start, length: self.config.length).toFbString()
+        
+        if date < self.period.start.toFbString() {
+            date = self.period.start.toFbString()
+        }
+        
+        transaction.active = date
+        transaction.delete = nil
+        
+        if transaction.id != nil {
+            self.recurrings.load(key: transaction.id!) { initial in
+                self.recurrings.save(record: transaction) { id in
+                    // leave for undo
+                    initial.delete = date
+                    initial.active = nil
+                    self.history.save(transaction, initial: initial)
+                    self.emit(.historyChanged)
                 }
             }
-            
-            for tDate in Date.range(start: date, end: transaction.end, period: transaction.period) {
-                if (tDate >= self.period.start) {
-                    var object = [AnyHashable:Any]()
-                    object["amount"] = transaction.amount
-                    object["cash"] = transaction.cash
-                    object["category"] = transaction.category
-                    object["date"] = tDate.toFbString()
-                    object["name"] = transaction.name
-                    object["note"] = transaction.note
-                    object["recurring"] = id
-                    object["transfer"] = transaction.transfer
-                    if let newTransaction = Transaction(data: object as AnyObject) { self.transactions.save(record: newTransaction) }
-                }
+        } else {
+            self.recurrings.save(record: transaction) { id in
+                // leave for undo
+                transaction.id = id
+                self.history.create(transaction)
+                self.emit(.historyChanged)
             }
         }
     }
     
     func removeRecurring(_ transaction: RecurringTransaction) {
-        self.recurrings.save(record: transaction) { id in
-            var date = Date.periodCalc(start: self.config.start, length: self.config.length).toFbString()
-            
-            if date < self.period.start.toFbString() {
-                date = self.period.start.toFbString()
-            }
-            
-            self.transactions.getRecurring(id: id) { transactions in
-                let toDelete = transactions.values.filter({ $0.date >= date && !$0.paid })
-                for tr in toDelete {
-                    self.transactions.remove(record: tr)
-                }
+        guard transaction.id != nil else { return }
+        var date = Date.periodCalc(start: self.config.start, length: self.config.length).toFbString()
+        
+        if date < self.period.start.toFbString() {
+            date = self.period.start.toFbString()
+        }
+        transaction.delete = date
+        transaction.active = nil
+        self.recurrings.load(key: transaction.id!) { initial in
+            self.recurrings.save(record: transaction) { id in
+                // leave for undo
+                initial.active = date
+                initial.delete = nil
+                self.history.save(transaction, initial: initial)
+                self.emit(.historyChanged)
             }
         }
+    }
+    
+    var canUndo : Bool {
+        get { return self.history.canUndo }
+    }
+    
+    var canRedo : Bool {
+        get { return self.history.canRedo }
+    }
+    
+    func undo() {
+        guard canUndo else { return }
+        self.history.undo()
+        self.emit(.historyChanged)
+    }
+    
+    func redo() {
+        guard canRedo else { return }
+        self.history.redo()
+        self.emit(.historyChanged)
     }
 }
 

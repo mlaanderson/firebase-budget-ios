@@ -344,10 +344,10 @@ extension Date {
         var date = start
         var result: [Date] = []
         
-        while (date + period) <= end {
+        repeat {
             result.append(date)
             date = date + period
-        }
+        } while date <= end + "1 day"
         
         return result
     }
