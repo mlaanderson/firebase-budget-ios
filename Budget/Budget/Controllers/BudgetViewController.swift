@@ -43,6 +43,7 @@ class BudgetTableViewCell : UITableViewCell {
         self.cashTextLabel.isHidden = true
         self.reurringButton.isHidden = true
         self.transferTextLabel.isHidden = true
+        self.paidTextLabel.isHidden = true
         self.amountTextLabel.text = Formatters.Currency.string(from: total as NSNumber)
     }
     
