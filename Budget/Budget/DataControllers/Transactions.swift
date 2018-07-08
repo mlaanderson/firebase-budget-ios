@@ -199,5 +199,23 @@ class Transactions : Records<Transaction> {
     public func getRecurring(id: String, completion:@escaping ([String:Transaction]) -> Void) {
         self.loadRecordsByChild(child: "recurring", startAt: id, endAt: id, completion: completion)
     }
-    // TODO SEARCH
+
+    func search(search: String, completion:@escaping (_ transactions: [Transaction]) -> Void) {
+        let searcher = Regex(pattern: search, options: [.caseInsensitive])
+        self.loadRecords { records in
+            let result = records.values.filter({ searcher.isMatch($0.name) }).sorted { a, b in
+                guard let aIdx = self.Categories.index(of: a.category)
+                    else { return true }
+                guard let bIdx = self.Categories.index(of: b.category)
+                    else { return false }
+                
+                if aIdx == bIdx {
+                    if a.date < b.date { return true }
+                }
+                
+                return aIdx < bIdx
+            }
+            completion(result)
+        }
+    }
 }

@@ -10,6 +10,8 @@
 		774CA98944E4D0B835F3F25D /* Pods_Budget.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F444CAD8B212ADCC0A8E40F5 /* Pods_Budget.framework */; };
 		7E407D2A84B856521E64DD2B /* Pods_BudgetTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E32F6982D3B03F094F28D395 /* Pods_BudgetTests.framework */; };
 		83030C2720CA05F300CE597B /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 83030C2620CA05F200CE597B /* GoogleService-Info.plist */; };
+		833A4E2820F2B26D00FD75DD /* SearchViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833A4E2720F2B26D00FD75DD /* SearchViewController.swift */; };
+		833A4E2A20F2B7CF00FD75DD /* BarTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 833A4E2920F2B7CF00FD75DD /* BarTextField.swift */; };
 		8340BBEA20C8CA6D00D97447 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8340BBE920C8CA6D00D97447 /* AppDelegate.swift */; };
 		8340BBEC20C8CA6D00D97447 /* LoginController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8340BBEB20C8CA6D00D97447 /* LoginController.swift */; };
 		8340BBEF20C8CA6D00D97447 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8340BBED20C8CA6D00D97447 /* Main.storyboard */; };
@@ -67,6 +69,8 @@
 		1DB181CA5219BE9B8998E0F3 /* Pods-BudgetTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BudgetTests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BudgetTests/Pods-BudgetTests.debug.xcconfig"; sourceTree = "<group>"; };
 		5386D82F337EF32C9B9B2BE7 /* Pods-Budget.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Budget.debug.xcconfig"; path = "Pods/Target Support Files/Pods-Budget/Pods-Budget.debug.xcconfig"; sourceTree = "<group>"; };
 		83030C2620CA05F200CE597B /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		833A4E2720F2B26D00FD75DD /* SearchViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SearchViewController.swift; sourceTree = "<group>"; };
+		833A4E2920F2B7CF00FD75DD /* BarTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarTextField.swift; sourceTree = "<group>"; };
 		8340BBE620C8CA6D00D97447 /* Budget.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Budget.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8340BBE920C8CA6D00D97447 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8340BBEB20C8CA6D00D97447 /* LoginController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginController.swift; sourceTree = "<group>"; };
@@ -251,10 +255,12 @@
 				8340BBEB20C8CA6D00D97447 /* LoginController.swift */,
 				836E897420E9390B006A4C56 /* DatePickerDialog.swift */,
 				8378C79520CC89EC00A948BF /* BudgetViewController.swift */,
+				833A4E2720F2B26D00FD75DD /* SearchViewController.swift */,
 				837718A320ED09A700111192 /* MenuViewController.swift */,
 				838F8EF920D8A6D400A76DEA /* TransactionEditorController.swift */,
 				837718A520ED307200111192 /* RecurringEditorController.swift */,
 				836E897820E96111006A4C56 /* CurrencyField.swift */,
+				833A4E2920F2B7CF00FD75DD /* BarTextField.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -510,6 +516,7 @@
 				83D039F620E2FD9B001D75C6 /* Promise.swift in Sources */,
 				834F7C3F20DE9364008C403A /* Transaction.swift in Sources */,
 				8340BBEC20C8CA6D00D97447 /* LoginController.swift in Sources */,
+				833A4E2820F2B26D00FD75DD /* SearchViewController.swift in Sources */,
 				83E9904620DEAB48006212DC /* Cash.swift in Sources */,
 				83CB413E20E050F500B4C4DE /* Configuration.swift in Sources */,
 				834F7C4120DE985C008C403A /* RecurringTransaction.swift in Sources */,
@@ -518,6 +525,7 @@
 				8378C79620CC89EC00A948BF /* BudgetViewController.swift in Sources */,
 				834F7C3D20DE92E1008C403A /* BudgetRecord.swift in Sources */,
 				83E9904220DEA59E006212DC /* RecurringTransactions.swift in Sources */,
+				833A4E2A20F2B7CF00FD75DD /* BarTextField.swift in Sources */,
 				834F7C4620DE9C9B008C403A /* Records.swift in Sources */,
 				834F7C2820DE70E9008C403A /* Regex.swift in Sources */,
 				83A6E83620E034B900C69D42 /* BudgetData.swift in Sources */,

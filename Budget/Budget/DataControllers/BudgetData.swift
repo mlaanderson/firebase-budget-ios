@@ -181,6 +181,35 @@ class BudgetData : Observable<BudgetEvents, AnyObject> {
         get { return self.history.canRedo }
     }
     
+    var undoDescription : String? {
+        get {
+            guard
+            let item = self.history.undoItem()
+            else { return nil }
+            
+            switch item.type {
+            case .recurring:
+                switch item.action {
+                case .change:
+                    return "Undo recurring edit?"
+                case .create:
+                    return "Undo create recurring?"
+                case .delete:
+                    return "Undo delete recurring?"
+                }
+            case .transaction:
+                switch item.action {
+                case .change:
+                    return "Undo changes?"
+                case .create:
+                    return "Undo create tranaction?"
+                case .delete:
+                    return "Undo delete transaction?"
+                }
+            }
+        }
+    }
+    
     func undo() {
         guard canUndo else { return }
         self.history.undo()

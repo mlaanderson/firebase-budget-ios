@@ -40,6 +40,11 @@ class HistoryManager {
         self.budget = budget
     }
     
+    func undoItem() -> HistoryItem? {
+        guard canUndo else { return nil }
+        return history[pointer - 1]
+    }
+    
     func append(action: HistoryActions, final: BudgetRecord, initial: BudgetRecord?) {
         if final as? Transaction != nil {
             self.history.append(HistoryItem(action: action, type: .transaction, final: final, initial: initial))

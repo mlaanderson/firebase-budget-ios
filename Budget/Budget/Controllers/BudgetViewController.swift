@@ -18,7 +18,8 @@ enum BudgetSegues: String {
     transactionEditor = "transactionEditorSegue",
     viewMenu = "viewMenuSegue",
     datePicker = "datePickerSegue",
-    recurringEditor = "recurringSegue"
+    recurringEditor = "recurringSegue",
+    search = "searchSegue"
 }
 
 class BudgetTableViewCell : UITableViewCell {
@@ -243,6 +244,13 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
                 }
             }
             break
+        case .search:
+            if let nvc = segue.destination as? UINavigationController {
+                if let vc = nvc.topViewController as? SearchViewController {
+                    vc.budget = self.budget
+                }
+            }
+            break;
         default:
             break
         }
@@ -292,6 +300,27 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    override func becomeFirstResponder() -> Bool {
+        return true
+    }
+    
+    override func motionEnded(_ motion: UIEventSubtype, with event: UIEvent?) {
+        if motion == .motionShake && self.budget.canUndo {
+            if let message = self.budget.undoDescription {
+            
+                let undoAlert = UIAlertController(title: "Undo?", message: message, preferredStyle: UIAlertControllerStyle.alert)
+                
+                undoAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
+                    self.undo()
+                }))
+                
+                undoAlert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+                
+                self.present(undoAlert, animated: true, completion: nil)
+            }
+        }
     }
     
     //MARK: Data functions
@@ -453,6 +482,7 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
         self.nextButton.isEnabled = true
         self.dateLabel.isEnabled = true
         self.newButton.isEnabled = true
+        self.searchButton.isEnabled = true
         self.recurringButton.isEnabled = true
     }
     

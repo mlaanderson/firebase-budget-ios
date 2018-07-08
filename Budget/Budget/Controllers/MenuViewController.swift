@@ -48,7 +48,7 @@ class MenuViewController: UITableViewController {
     }
     @IBAction func redoDidTouch(_ sender: UIButton) {
         self.dismiss(animated: true) {
-            self.budgetView?.undo()
+            self.budgetView?.redo()
         }
     }
     
