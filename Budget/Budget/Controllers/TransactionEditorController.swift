@@ -62,8 +62,9 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
     private var catCellExpanded: Bool = false
     
     
-    var transaction: TransactionData?
-    var transactions: Transactions?
+    var data: TransactionData?
+    var budget: BudgetData?
+    var transaction: Transaction?
     var categories: [String]?
     
     @IBOutlet weak var datePicker: UIDatePicker!
@@ -82,10 +83,10 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
     
     func setTransaction(_ transaction: Transaction?) {
         if transaction != nil {
-            self.transaction = TransactionData.fromTransaction(transaction!)
+            self.data = TransactionData.fromTransaction(transaction!)
         } else {
-            self.transaction = TransactionData.defaultTransaction()
-            self.transaction?.category = self.categories?[0] ?? "Income"
+            self.data = TransactionData.defaultTransaction()
+            self.data?.category = self.categories?[0] ?? "Income"
         }
     }
     
@@ -113,8 +114,8 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
     }
     
     func pickerView(_ pickerView: UIPickerView, didSelectRow row: Int, inComponent component: Int) {
-        if self.transaction != nil && self.categories != nil {
-            transaction!.category = self.categories![row]
+        if self.data != nil && self.categories != nil {
+            data!.category = self.categories![row]
             lblCategory.text = "Category: " + self.categories![row]
         }
     }
@@ -132,27 +133,27 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
         self.categoryPicker.delegate = self
 
         // set the loaded transaction
-        if self.transaction != nil {
-            self.datePicker.date = Date.parseFb(value: (self.transaction?.date)!)!
+        if self.data != nil {
+            self.datePicker.date = Date.parseFb(value: (self.data?.date)!)!
             
             lblDate.text = "Date: " + Formatters.EditDate.string(from: self.datePicker.date)
-            lblCategory.text = "Category: " + transaction!.category
+            lblCategory.text = "Category: " + data!.category
             
-            txtName.text = transaction!.name
-            swDeposit.isOn = transaction!.amount > 0
-            swCash.isOn = transaction!.cash
-            swTransfer.isOn = transaction!.transfer
-            txtCheck.text = transaction?.check ?? ""
-            txtAmount.text = Formatters.NumberEdit.string(from: abs(transaction!.amount) as NSNumber)
-            swPaid.isOn = transaction!.paid
-            txtNote.text = transaction?.note ?? ""
-            recurringButton.isEnabled = transaction?.recurring != nil
+            txtName.text = data!.name
+            swDeposit.isOn = data!.amount > 0
+            swCash.isOn = data!.cash
+            swTransfer.isOn = data!.transfer
+            txtCheck.text = data?.check ?? ""
+            txtAmount.text = Formatters.NumberEdit.string(from: abs(data!.amount) as NSNumber)
+            swPaid.isOn = data!.paid
+            txtNote.text = data?.note ?? ""
+            recurringButton.isEnabled = data?.recurring != nil
         }
     }
     
     override func viewDidAppear(_ animated: Bool) {
         if self.categories != nil {
-            let selectedCategory = self.transaction?.category ?? self.categories![0]
+            let selectedCategory = self.data?.category ?? self.categories![0]
             let catIndex = self.categories?.firstIndex(of: selectedCategory) ?? 0
 
             self.categoryPicker.selectRow(catIndex, inComponent: 0, animated: true)
@@ -260,9 +261,9 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
     //MARK: Actions
     
     @IBAction func datePicker(_ sender: UIDatePicker) {
-        self.transaction!.date = self.datePicker.date.toFbString()
+        self.data!.date = self.datePicker.date.toFbString()
         lblDate.text = "Date: " + Formatters.EditDate.string(from: self.datePicker.date)
-        self.transaction!.date = self.datePicker.date.toFbString()
+        self.data!.date = self.datePicker.date.toFbString()
     }
     
     @IBAction func recurringDidTouch(_ sender: UIBarButtonItem) {
@@ -276,8 +277,8 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
     @IBAction func saveDidTouch(_ sender: UIBarButtonItem) {
         // pick up the valuse from the controls
         guard
-        var transData = self.transaction,
-        let transactions = self.transactions
+        var transData = self.data,
+        let transactions = self.budget?.transactions
         else {
             return
         }
@@ -303,13 +304,13 @@ class TransactionEditorControler: UITableViewController, UIPickerViewDelegate, U
                 transaction.recurring = transData.recurring
                 transaction.transfer = transData.transfer
                 
-                transactions.save(record: transaction)
+                self.budget!.saveTransaction(transaction)
                 
                 self.dismiss(animated: true)
             }
         } else {
             if let transaction = Transaction(data: transData.asObject() as AnyObject) {
-                transactions.save(record: transaction)
+                self.budget!.saveTransaction(transaction)
                 self.dismiss(animated: true)
             }
         }

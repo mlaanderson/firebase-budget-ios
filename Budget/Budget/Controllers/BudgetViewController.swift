@@ -12,6 +12,15 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
+enum BudgetSegues: String {
+    case
+    none = "",
+    transactionEditor = "transactionEditorSegue",
+    viewMenu = "viewMenuSegue",
+    datePicker = "datePickerSegue",
+    recurringEditor = "recurringSegue"
+}
+
 class BudgetTableViewCell : UITableViewCell {
     var transaction: Transaction?
     var budget: BudgetController?
@@ -59,7 +68,6 @@ class BudgetTableViewCell : UITableViewCell {
 }
 
 class BudgetController: UITableViewController, UIPopoverPresentationControllerDelegate {
-    var transactionEditorSegue = "transactionEditorSegue"
     var budget: BudgetData!
     var user : User!
     var ref : DatabaseReference!
@@ -67,7 +75,6 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     var periodStart : Date?
     var periodEnd : Date?
     var items: [Transaction] = []
-    var activeTransaction : Transaction?
     var total: Double = 0
     var Categories: [String] = []
     var periods = [Period]()
@@ -82,42 +89,18 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     //MARK: Outlets
     
     @IBOutlet weak var dateLabel: UIBarButtonItem!
-    @IBOutlet weak var editButton: UIBarButtonItem!
     @IBOutlet weak var prevButton: UIBarButtonItem!
     @IBOutlet weak var nextButton: UIBarButtonItem!
     @IBOutlet weak var menuButton: UIBarButtonItem!
     @IBOutlet weak var newButton: UIBarButtonItem!
     @IBOutlet weak var recurringButton: UIBarButtonItem!
-    @IBOutlet weak var redoButton: UIBarButtonItem!
-    @IBOutlet weak var undoButton: UIBarButtonItem!
+    @IBOutlet weak var searchButton: UIBarButtonItem!
+    
     
     //MARK: Actions
-    @IBAction func undoDidTouch(_ sender: UIBarButtonItem) {
-        guard
-        self.budget != nil,
-        self.budget.canUndo
-            else { return }
-        
-        self.budget.undo()
-    }
-    
-    @IBAction func redoDidTouch(_ sender: UIBarButtonItem) {
-        guard
-            self.budget != nil,
-            self.budget.canRedo
-            else { return }
-        
-        self.budget.redo()
-    }
-    
-    @IBAction func editButtonDidTouch(_ sender: UIBarButtonItem) {
-        if self.activeTransaction != nil {
-            performSegue(withIdentifier: self.transactionEditorSegue, sender: nil)
-        }
-    }
-
+   
     @IBAction func recurringButtonDidTouch(_ sender: UIBarButtonItem) {
-        performSegue(withIdentifier: "recurringSegue", sender: nil)
+        performSegue(withIdentifier: BudgetSegues.recurringEditor.rawValue, sender: nil)
     }
     
     @IBAction func nextPeriodDidTouch(_ sender: UIBarButtonItem) {
@@ -132,8 +115,7 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     
 
     @IBAction func btnAddTransactionDidTouch(_ sender: UIBarButtonItem) {
-        self.activeTransaction = nil
-        performSegue(withIdentifier: self.transactionEditorSegue, sender: nil)
+        performSegue(withIdentifier: BudgetSegues.transactionEditor.rawValue, sender: nil)
     }
     
     //MARK: UITableView Delegate methods
@@ -183,77 +165,77 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
         return cell
     }
     
-    override func tableView(_ tableView: UITableView, editingStyleForRowAt indexPath: IndexPath) -> UITableViewCellEditingStyle {
-        if indexPath.section < self.Categories.count {
-            return .delete
-        }
-        return .none
+    override func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
+        return indexPath.section < Categories.count
     }
-
-    override func tableView(_ tableView: UITableView, commit editingStyle:  UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
-        if self.Ready {
-            if indexPath.section < self.Categories.count {
-                let transaction = items.filter( { item in
-                    return item.category == self.Categories[indexPath.section]
-                })[indexPath.row]
-                
-                let deleteAlert = UIAlertController(title: "Are you sure?", message: "Delete this transaction?", preferredStyle: UIAlertControllerStyle.alert)
-                
-                deleteAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
-                    self.budget.removeTransaction(transaction)
-                }))
-                
-                deleteAlert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
-                
-                present(deleteAlert, animated: true, completion: nil)
+    
+    override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
+        guard indexPath.section < Categories.count else { return nil }
+        let editRowAction = UITableViewRowAction(style: .default, title: "Edit") { action, indexPath in
+            if self.Ready {
+                if indexPath.section < self.Categories.count {
+                    let transaction = self.items.filter( { item in
+                        return item.category == self.Categories[indexPath.section]
+                    })[indexPath.row]
+                    
+                    self.performSegue(withIdentifier: BudgetSegues.transactionEditor.rawValue, sender: transaction)
+                }
             }
         }
-    }
-    
-    override func tableView(_ tableView: UITableView, willSelectRowAt indexPath: IndexPath) -> IndexPath? {
-        if indexPath.section >= self.Categories.count { return nil }
-        return indexPath
-    }
-    
-    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        self.activeTransaction = items.filter( { item in
-            return item.category == self.Categories[indexPath.section]
-        })[indexPath.row]
+        editRowAction.backgroundColor = UIColor.gray
         
-        self.editButton.isEnabled = self.activeTransaction != nil
+        let deleteRowAction = UITableViewRowAction(style: .default, title: "Delete") { action, indexPath in
+            if self.Ready {
+                if indexPath.section < self.Categories.count {
+                    let transaction = self.items.filter( { item in
+                        return item.category == self.Categories[indexPath.section]
+                    })[indexPath.row]
+                    
+                    let deleteAlert = UIAlertController(title: "Are you sure?", message: "Delete this transaction?", preferredStyle: UIAlertControllerStyle.alert)
+                    
+                    deleteAlert.addAction(UIAlertAction(title: "Yes", style: .default, handler: { action in
+                        self.budget.removeTransaction(transaction)
+                    }))
+                    
+                    deleteAlert.addAction(UIAlertAction(title: "No", style: .cancel, handler: nil))
+                    
+                    self.present(deleteAlert, animated: true, completion: nil)
+                }
+            }
+        }
+        
+        return [editRowAction, deleteRowAction]
     }
     
     //MARK: Segues
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        switch segue.identifier {
-        case "transactionEditorSegue":
+        switch BudgetSegues(rawValue: segue.identifier ?? "") ?? .none {
+        case .transactionEditor:
             if let transactionNavigator = segue.destination as? UINavigationController {
-                    if let transactionEditor = transactionNavigator.topViewController as? TransactionEditorControler {
+                if let transactionEditor = transactionNavigator.topViewController as? TransactionEditorControler {
+                    let transaction = sender as? Transaction
                     transactionEditor.categories = self.budget.config.categories
-                    transactionEditor.transactions = self.budget.transactions
+                    transactionEditor.budget = self.budget
 
-                    transactionEditor.setTransaction(self.activeTransaction)
-                    
-                    self.activeTransaction = nil
-                    self.editButton.isEnabled = false
+                    transactionEditor.setTransaction(transaction)
                 }
             }
             break
-        case "viewMenuSegue":
+        case .viewMenu:
             if let menu = segue.destination as? MenuViewController {
                 menu.budgetView = self
                 menu.modalPresentationStyle = .popover
                 menu.popoverPresentationController!.delegate = self
             }
             break
-        case "datePickerSegue":
+        case .datePicker:
             if let vc = segue.destination as? DatePickerDialog {
                 vc.attachBudget(periods: self.periods, current: self.budget.period, budget: self.budget, parentView: self)
                 vc.modalPresentationStyle = .popover
                 vc.popoverPresentationController!.delegate = self
             }
             break
-        case "recurringSegue":
+        case .recurringEditor:
             if let nvc = segue.destination as? UINavigationController {
                 if let vc = nvc.topViewController as? RecurringEditorController {
                     vc.budget = self.budget
@@ -272,7 +254,7 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     
     func editRecurring(_ id: String) {
         self.budget.recurrings.load(key: id) { transaction in
-            self.performSegue(withIdentifier: "recurringSegue", sender: transaction)
+            self.performSegue(withIdentifier: BudgetSegues.recurringEditor.rawValue, sender: transaction)
         }
     }
 
@@ -281,7 +263,6 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        self.menuButton.title = "\u{2699}\u{0000fe0e}"
         self.showSpinner()
         
         // verify the user
@@ -314,6 +295,21 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     }
     
     //MARK: Data functions
+    func undo() {
+        guard
+        self.budget != nil,
+        self.budget.canUndo
+            else { return }
+        self.budget.undo()
+    }
+    
+    func redo() {
+        guard
+            self.budget != nil,
+            self.budget.canRedo
+            else { return }
+        self.budget.redo()
+    }
     
     func showTransfers() -> Void {
         let title = "Transfer \(budget.transactions.Transfer < 0 ? "into" : "from") Savings"
@@ -396,11 +392,6 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
         let _ = self.budget.transactions.on(.childChanged, handler: self.changeTransaction)
         let _ = self.budget.transactions.on(.childRemoved, handler: self.removeTransaction)
         let _ = self.budget.transactions.on(.childAdded, handler: self.addTransaction)
-        
-        let _ = self.budget.on(.historyChanged) { _ in
-            self.undoButton.isEnabled = self.budget.canUndo
-            self.redoButton.isEnabled = self.budget.canRedo
-        }
     }
     
     func addTransaction(_ data: Historical<Transaction>?) {
@@ -413,10 +404,6 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
             self.total = self.budget.transactions.total
             self.tableView.reloadData()
         }
-//        self.budget.transactions.getTotal() { total in
-//            self.total = total
-//            self.tableView.reloadData()
-//        }
     }
     
     func removeTransaction(_ data: Historical<Transaction>?) {
@@ -429,10 +416,6 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
             self.total = self.budget.transactions.total
             self.tableView.reloadData()
         }
-//        self.budget.transactions.getTotal() { total in
-//            self.total = total
-//            self.tableView.reloadData()
-//        }
     }
         
     func changeTransaction(_ data: Historical<Transaction>?) {
@@ -448,10 +431,6 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
             self.total = self.budget.transactions.total
             self.tableView.reloadData()
         }
-//        self.budget.transactions.getTotal() { total in
-//            self.total = total
-//            self.tableView.reloadData()
-//        }
     }
     
     func loadTransactions(_: AnyObject?) {
