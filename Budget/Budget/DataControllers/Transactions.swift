@@ -110,19 +110,7 @@ class Transactions : Records<Transaction> {
         
         self.emit(.childRemoved, Historical(record))
     }
-    
-    override func onChildSaved(_ current: Transaction, _ original: Transaction?) {
-        guard
-            self.periodStart != nil,
-            self.periodEnd != nil
-            else { return }
 
-        if self.inPeriod(current.id!) {
-            self.records[current.id!] = current
-        } else {
-            self.records.removeValue(forKey: current.id!)
-        }
-    }
     
     public var Records: [String:Transaction] {
         get { return self.records }
