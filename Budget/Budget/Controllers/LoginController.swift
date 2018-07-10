@@ -11,7 +11,7 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
-class LoginController: UIViewController {
+class LoginController: UIViewController, UITextFieldDelegate {
     
     let loginToBudget = "loginToBudget"
     var budget: BudgetData?
@@ -40,32 +40,54 @@ class LoginController: UIViewController {
         // Dispose of any resources that can be recreated.
     }
 
-    
-    //MARK: Actions
-    @IBAction func loginButton(_ sender: UIButton) {
+    //MARK: TextFieldDelegates
+    func textFieldChouldReturn(_ textField: UITextField) -> Bool {
+        switch textField {
+            case loginUsername:
+                loginUsername.resignFirstResponder()
+                loginPassword.becomeFirstResponder()
+                return false
+                break
+            case loginPassword:
+                loginPassword.resignFirstResponder()
+                performLogin()
+                return false
+                break
+            default:
+                return true
+                break
+        }
+    }
+
+    func performLogin() {
         guard
             let email = loginUsername.text,
             let password = loginPassword.text,
             email.count > 0,
             password.count > 0
             else {
+                // go back to the username field
+                loginUsername.becomeFirstResponder()
                 return
-        }
+            }
         
         Auth.auth().signIn(withEmail: email, password: password){ (user, error) in
-            // ...
             if let error = error, user == nil {
                 let alert = UIAlertController(title: "Login Failed", message: error.localizedDescription, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
                 self.present(alert, animated: true, completion: nil)
             }
         }
+    }
 
+    
+    //MARK: Actions
+    @IBAction func loginButton(_ sender: UIButton) {
+        performLogin()
     }
 
     @IBAction func loginSignupButton(_ sender: UIButton) {
         print("Signup Button Pressed\n");
-        
     }
 
 }
