@@ -38,6 +38,7 @@
 		838F8EFA20D8A6D400A76DEA /* TransactionEditorController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 838F8EF920D8A6D400A76DEA /* TransactionEditorController.swift */; };
 		83A6E83620E034B900C69D42 /* BudgetData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A6E83520E034B900C69D42 /* BudgetData.swift */; };
 		83A6E83820E035EE00C69D42 /* Observable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83A6E83720E035EE00C69D42 /* Observable.swift */; };
+		83BF4B6120F56C7700E0F3FB /* SignupController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83BF4B6020F56C7700E0F3FB /* SignupController.swift */; };
 		83CB413E20E050F500B4C4DE /* Configuration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83CB413D20E050F500B4C4DE /* Configuration.swift */; };
 		83D039F620E2FD9B001D75C6 /* Promise.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83D039F520E2FD9B001D75C6 /* Promise.swift */; };
 		83E9904220DEA59E006212DC /* RecurringTransactions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E9904120DEA59E006212DC /* RecurringTransactions.swift */; };
@@ -103,6 +104,7 @@
 		838F8EF920D8A6D400A76DEA /* TransactionEditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionEditorController.swift; sourceTree = "<group>"; };
 		83A6E83520E034B900C69D42 /* BudgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetData.swift; sourceTree = "<group>"; };
 		83A6E83720E035EE00C69D42 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
+		83BF4B6020F56C7700E0F3FB /* SignupController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupController.swift; sourceTree = "<group>"; };
 		83CB413D20E050F500B4C4DE /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		83D039F520E2FD9B001D75C6 /* Promise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
 		83D8295820CA0BDA005AE9E5 /* Firebase.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; name = Firebase.h; path = Pods/Firebase/CoreOnly/Sources/Firebase.h; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 				837718A520ED307200111192 /* RecurringEditorController.swift */,
 				836E897820E96111006A4C56 /* CurrencyField.swift */,
 				833A4E2920F2B7CF00FD75DD /* BarTextField.swift */,
+				83BF4B6020F56C7700E0F3FB /* SignupController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -531,6 +534,7 @@
 				83A6E83620E034B900C69D42 /* BudgetData.swift in Sources */,
 				8340BBEA20C8CA6D00D97447 /* AppDelegate.swift in Sources */,
 				83F14B5820CDD55200038A05 /* DateExt.swift in Sources */,
+				83BF4B6120F56C7700E0F3FB /* SignupController.swift in Sources */,
 				838F8EFA20D8A6D400A76DEA /* TransactionEditorController.swift in Sources */,
 				837718A620ED307200111192 /* RecurringEditorController.swift in Sources */,
 				837718A420ED09A700111192 /* MenuViewController.swift in Sources */,

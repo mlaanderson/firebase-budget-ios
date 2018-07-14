@@ -25,11 +25,32 @@ class LoginController: UIViewController, UITextFieldDelegate {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
+        loginUsername.delegate = self
+        loginPassword.delegate = self
+        
         Auth.auth().addStateDidChangeListener() { auth, user in
+
             if (user != nil) {
-                self.performSegue(withIdentifier: self.loginToBudget, sender: nil)
-                self.loginUsername.text = nil
-                self.loginPassword.text = nil
+                user!.getIDTokenResult(forcingRefresh: true) { token, error in
+                    if error != nil {
+                        do {
+                            try Auth.auth().signOut()
+                        } catch (_) {
+                            self.loginPassword.text = ""
+                            self.loginUsername.text = ""
+                            self.loginUsername.becomeFirstResponder()
+                        }
+                    } else {
+                        self.performSegue(withIdentifier: self.loginToBudget, sender: nil)
+                        self.loginUsername.text = nil
+                        self.loginPassword.text = nil
+                    }
+                }
+
+            } else {
+                self.loginPassword.text = ""
+                self.loginUsername.text = ""
+                self.loginUsername.becomeFirstResponder()
             }
         }
     }
@@ -39,23 +60,20 @@ class LoginController: UIViewController, UITextFieldDelegate {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
+    
     //MARK: TextFieldDelegates
-    func textFieldChouldReturn(_ textField: UITextField) -> Bool {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         switch textField {
             case loginUsername:
                 loginUsername.resignFirstResponder()
                 loginPassword.becomeFirstResponder()
                 return false
-                break
             case loginPassword:
                 loginPassword.resignFirstResponder()
                 performLogin()
                 return false
-                break
             default:
                 return true
-                break
         }
     }
 
@@ -71,7 +89,11 @@ class LoginController: UIViewController, UITextFieldDelegate {
                 return
             }
         
-        Auth.auth().signIn(withEmail: email, password: password){ (user, error) in
+        login(withEmail: email, password: password)
+    }
+    
+    func login(withEmail: String, password: String) {
+        Auth.auth().signIn(withEmail: withEmail, password: password){ (user, error) in
             if let error = error, user == nil {
                 let alert = UIAlertController(title: "Login Failed", message: error.localizedDescription, preferredStyle: .alert)
                 alert.addAction(UIAlertAction(title: "OK", style: .default))
@@ -79,16 +101,15 @@ class LoginController: UIViewController, UITextFieldDelegate {
             }
         }
     }
+    
+    func testUser() {
+        print(Auth.auth().currentUser?.uid ?? "logged out")
+    }
 
     
     //MARK: Actions
     @IBAction func loginButton(_ sender: UIButton) {
         performLogin()
     }
-
-    @IBAction func loginSignupButton(_ sender: UIButton) {
-        print("Signup Button Pressed\n");
-    }
-
 }
 
