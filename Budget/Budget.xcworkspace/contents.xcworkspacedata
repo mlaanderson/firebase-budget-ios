@@ -2,9 +2,6 @@
 <Workspace
    version = "1.0">
    <FileRef
-      location = "group:Budget/Base.lproj/RecurringEditor.storyboard">
-   </FileRef>
-   <FileRef
       location = "group:Budget.xcodeproj">
    </FileRef>
    <FileRef

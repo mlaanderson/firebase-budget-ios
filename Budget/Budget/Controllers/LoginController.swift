@@ -11,10 +11,16 @@ import Firebase
 import FirebaseDatabase
 import FirebaseAuth
 
+enum LoginSegues: String {
+    case
+        LoginToBudget = "loginToBudget",
+        ShowIntro = "introWizardSegue"
+}
+
 class LoginController: UIViewController, UITextFieldDelegate {
     
-    let loginToBudget = "loginToBudget"
     var budget: BudgetData?
+    var spinner: UIView?
     
     //MARK: Properties
     @IBOutlet weak var loginUsername: UITextField!
@@ -29,7 +35,7 @@ class LoginController: UIViewController, UITextFieldDelegate {
         loginPassword.delegate = self
         
         Auth.auth().addStateDidChangeListener() { auth, user in
-
+            self.showSpinner()
             if (user != nil) {
                 user!.getIDTokenResult(forcingRefresh: true) { token, error in
                     if error != nil {
@@ -39,9 +45,20 @@ class LoginController: UIViewController, UITextFieldDelegate {
                             self.loginPassword.text = ""
                             self.loginUsername.text = ""
                             self.loginUsername.becomeFirstResponder()
+                            self.hideSpinner()
                         }
                     } else {
-                        self.performSegue(withIdentifier: self.loginToBudget, sender: nil)
+                        // check to see if the wizard should be shown
+                        Database.database().reference(withPath: user!.uid).child("config/showWizard").observeSingleEvent(of: .value) { snapshot in
+                            let showWizard = snapshot.value as? Bool
+                            guard showWizard == true else {
+                                self.performSegue(withIdentifier: LoginSegues.LoginToBudget.rawValue, sender: nil)
+                                self.hideSpinner()
+                                return
+                            }
+                            self.performSegue(withIdentifier: LoginSegues.ShowIntro.rawValue, sender: nil)
+                            self.hideSpinner()
+                        }
                         self.loginUsername.text = nil
                         self.loginPassword.text = nil
                     }
@@ -51,6 +68,7 @@ class LoginController: UIViewController, UITextFieldDelegate {
                 self.loginPassword.text = ""
                 self.loginUsername.text = ""
                 self.loginUsername.becomeFirstResponder()
+                self.hideSpinner()
             }
         }
     }
@@ -106,6 +124,16 @@ class LoginController: UIViewController, UITextFieldDelegate {
         print(Auth.auth().currentUser?.uid ?? "logged out")
     }
 
+    //MARK UI Functions
+    func showSpinner() {
+        self.spinner = UIViewController.displaySpinner(onView: self.view)
+    }
+    
+    func hideSpinner() {
+        guard self.spinner != nil else { return }
+        UIViewController.removeSpinner(spinner: self.spinner!)
+        self.spinner = nil
+    }
     
     //MARK: Actions
     @IBAction func loginButton(_ sender: UIButton) {

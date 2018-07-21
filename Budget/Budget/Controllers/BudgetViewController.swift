@@ -172,6 +172,7 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
     
     override func tableView(_ tableView: UITableView, editActionsForRowAt indexPath: IndexPath) -> [UITableViewRowAction]? {
         guard indexPath.section < Categories.count else { return nil }
+        
         let editRowAction = UITableViewRowAction(style: .default, title: "Edit") { action, indexPath in
             if self.Ready {
                 if indexPath.section < self.Categories.count {
@@ -184,6 +185,20 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
             }
         }
         editRowAction.backgroundColor = UIColor.gray
+        
+        let markPaidRowAction = UITableViewRowAction(style: .default, title: "Paid") { action, indexPath in
+            if self.Ready {
+                if indexPath.section < self.Categories.count {
+                    let transaction = self.items.filter( { item in
+                        return item.category == self.Categories[indexPath.section]
+                    })[indexPath.row]
+                    
+                    transaction.paid = !transaction.paid
+                    self.budget.saveTransaction(transaction)
+                }
+            }
+        }
+        markPaidRowAction.backgroundColor = UIColor(red: 0.0, green: 0.5, blue: 0.0, alpha: 1.0)
         
         let deleteRowAction = UITableViewRowAction(style: .default, title: "Delete") { action, indexPath in
             if self.Ready {
@@ -205,7 +220,7 @@ class BudgetController: UITableViewController, UIPopoverPresentationControllerDe
             }
         }
         
-        return [editRowAction, deleteRowAction]
+        return [editRowAction, markPaidRowAction, deleteRowAction]
     }
     
     //MARK: Segues

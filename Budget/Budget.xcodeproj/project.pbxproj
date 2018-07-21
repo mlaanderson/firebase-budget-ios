@@ -19,6 +19,8 @@
 		8340BBF420C8CA6E00D97447 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8340BBF220C8CA6E00D97447 /* LaunchScreen.storyboard */; };
 		8340BBFF20C8CA6E00D97447 /* BudgetTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8340BBFE20C8CA6E00D97447 /* BudgetTests.swift */; };
 		8340BC0A20C8CA6E00D97447 /* BudgetUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8340BC0920C8CA6E00D97447 /* BudgetUITests.swift */; };
+		834CD84E2103C96100FF4C5C /* IntroWizard.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 834CD84C2103C96100FF4C5C /* IntroWizard.storyboard */; };
+		834CD8502103CA0100FF4C5C /* LastIntroPageControllerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834CD84F2103CA0000FF4C5C /* LastIntroPageControllerViewController.swift */; };
 		834EB88420FA72CD0035D456 /* ThemeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 834EB88320FA72CD0035D456 /* ThemeManager.swift */; };
 		834EB88820FA82E70035D456 /* TransactionEditor.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 834EB88620FA82E60035D456 /* TransactionEditor.storyboard */; };
 		834EB88B20FA837F0035D456 /* Search.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 834EB88920FA837F0035D456 /* Search.storyboard */; };
@@ -50,6 +52,7 @@
 		83E9904620DEAB48006212DC /* Cash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83E9904520DEAB48006212DC /* Cash.swift */; };
 		83EEABE320F0E0DB00ADEADD /* HistoryManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83EEABE220F0E0DB00ADEADD /* HistoryManager.swift */; };
 		83F14B5820CDD55200038A05 /* DateExt.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F14B5720CDD55200038A05 /* DateExt.swift */; };
+		83F6528C2103ADC900E04266 /* IntroWizardPageViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 83F6528B2103ADC900E04266 /* IntroWizardPageViewController.swift */; };
 		852DE61A4F80F13C55AE4C08 /* Pods_BudgetUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = ED516DEEE49FB6B287898ED3 /* Pods_BudgetUITests.framework */; };
 /* End PBXBuildFile section */
 
@@ -89,6 +92,8 @@
 		8340BC0520C8CA6E00D97447 /* BudgetUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BudgetUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8340BC0920C8CA6E00D97447 /* BudgetUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetUITests.swift; sourceTree = "<group>"; };
 		8340BC0B20C8CA6E00D97447 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		834CD84D2103C96100FF4C5C /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/IntroWizard.storyboard; sourceTree = "<group>"; };
+		834CD84F2103CA0000FF4C5C /* LastIntroPageControllerViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LastIntroPageControllerViewController.swift; sourceTree = "<group>"; };
 		834EB88320FA72CD0035D456 /* ThemeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThemeManager.swift; sourceTree = "<group>"; };
 		834EB88720FA82E60035D456 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/TransactionEditor.storyboard; sourceTree = "<group>"; };
 		834EB88A20FA837F0035D456 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Search.storyboard; sourceTree = "<group>"; };
@@ -122,6 +127,7 @@
 		83E9904520DEAB48006212DC /* Cash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Cash.swift; sourceTree = "<group>"; };
 		83EEABE220F0E0DB00ADEADD /* HistoryManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryManager.swift; sourceTree = "<group>"; };
 		83F14B5720CDD55200038A05 /* DateExt.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateExt.swift; sourceTree = "<group>"; };
+		83F6528B2103ADC900E04266 /* IntroWizardPageViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IntroWizardPageViewController.swift; sourceTree = "<group>"; };
 		8A0BC0504B95D2CB8DECE020 /* Pods-BudgetUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BudgetUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-BudgetUITests/Pods-BudgetUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		C5C308D5D27D9538DC0C796B /* Pods-BudgetUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-BudgetUITests.release.xcconfig"; path = "Pods/Target Support Files/Pods-BudgetUITests/Pods-BudgetUITests.release.xcconfig"; sourceTree = "<group>"; };
 		D72BF2B5B511D6A1E706E215 /* Pods-Budget.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Budget.release.xcconfig"; path = "Pods/Target Support Files/Pods-Budget/Pods-Budget.release.xcconfig"; sourceTree = "<group>"; };
@@ -206,6 +212,7 @@
 				8340BBED20C8CA6D00D97447 /* Main.storyboard */,
 				834EB88620FA82E60035D456 /* TransactionEditor.storyboard */,
 				834EB88C20FA845E0035D456 /* RecurringEditor.storyboard */,
+				834CD84C2103C96100FF4C5C /* IntroWizard.storyboard */,
 				834EB88920FA837F0035D456 /* Search.storyboard */,
 				8340BBF020C8CA6E00D97447 /* Assets.xcassets */,
 				83666F7820E7D1F500B9767F /* Font Awesome 5 Brands-Regular-400.otf */,
@@ -266,6 +273,7 @@
 			isa = PBXGroup;
 			children = (
 				8340BBEB20C8CA6D00D97447 /* LoginController.swift */,
+				834CD84F2103CA0000FF4C5C /* LastIntroPageControllerViewController.swift */,
 				836E897420E9390B006A4C56 /* DatePickerDialog.swift */,
 				8378C79520CC89EC00A948BF /* BudgetViewController.swift */,
 				833A4E2720F2B26D00FD75DD /* SearchViewController.swift */,
@@ -276,6 +284,7 @@
 				833A4E2920F2B7CF00FD75DD /* BarTextField.swift */,
 				83BF4B6020F56C7700E0F3FB /* SignupController.swift */,
 				834EB88320FA72CD0035D456 /* ThemeManager.swift */,
+				83F6528B2103ADC900E04266 /* IntroWizardPageViewController.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -412,6 +421,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				834EB88820FA82E70035D456 /* TransactionEditor.storyboard in Resources */,
+				834CD84E2103C96100FF4C5C /* IntroWizard.storyboard in Resources */,
 				83666F7B20E7D20100B9767F /* Font Awesome 5 Brands-Regular-400.otf in Resources */,
 				8340BBF420C8CA6E00D97447 /* LaunchScreen.storyboard in Resources */,
 				83666F7D20E7D20100B9767F /* Font Awesome 5 Free-Regular-400.otf in Resources */,
@@ -530,6 +540,7 @@
 				83A6E83820E035EE00C69D42 /* Observable.swift in Sources */,
 				834F7C4420DE99C0008C403A /* ObservableWithData.swift in Sources */,
 				836E897920E96111006A4C56 /* CurrencyField.swift in Sources */,
+				834CD8502103CA0100FF4C5C /* LastIntroPageControllerViewController.swift in Sources */,
 				83666F7720E7B8C100B9767F /* Formatters.swift in Sources */,
 				83D039F620E2FD9B001D75C6 /* Promise.swift in Sources */,
 				834F7C3F20DE9364008C403A /* Transaction.swift in Sources */,
@@ -543,6 +554,7 @@
 				8378C79620CC89EC00A948BF /* BudgetViewController.swift in Sources */,
 				834F7C3D20DE92E1008C403A /* BudgetRecord.swift in Sources */,
 				83E9904220DEA59E006212DC /* RecurringTransactions.swift in Sources */,
+				83F6528C2103ADC900E04266 /* IntroWizardPageViewController.swift in Sources */,
 				833A4E2A20F2B7CF00FD75DD /* BarTextField.swift in Sources */,
 				834F7C4620DE9C9B008C403A /* Records.swift in Sources */,
 				834F7C2820DE70E9008C403A /* Regex.swift in Sources */,
@@ -604,6 +616,14 @@
 				8340BBF320C8CA6E00D97447 /* Base */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		834CD84C2103C96100FF4C5C /* IntroWizard.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				834CD84D2103C96100FF4C5C /* Base */,
+			);
+			name = IntroWizard.storyboard;
 			sourceTree = "<group>";
 		};
 		834EB88620FA82E60035D456 /* TransactionEditor.storyboard */ = {
