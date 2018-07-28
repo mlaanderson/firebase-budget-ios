@@ -117,6 +117,7 @@
 		838F8EF920D8A6D400A76DEA /* TransactionEditorController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionEditorController.swift; sourceTree = "<group>"; };
 		83A6E83520E034B900C69D42 /* BudgetData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BudgetData.swift; sourceTree = "<group>"; };
 		83A6E83720E035EE00C69D42 /* Observable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Observable.swift; sourceTree = "<group>"; };
+		83AE0FF42103D8790099066A /* Podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = Podfile; sourceTree = "<group>"; };
 		83BF4B6020F56C7700E0F3FB /* SignupController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SignupController.swift; sourceTree = "<group>"; };
 		83CB413D20E050F500B4C4DE /* Configuration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Configuration.swift; sourceTree = "<group>"; };
 		83D039F520E2FD9B001D75C6 /* Promise.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Promise.swift; sourceTree = "<group>"; };
@@ -303,6 +304,7 @@
 		A35391E2E6987A4BF2CFA57A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				83AE0FF42103D8790099066A /* Podfile */,
 				83D8295A20CA0BF2005AE9E5 /* FirebaseCore */,
 				83D8295820CA0BDA005AE9E5 /* Firebase.h */,
 				F444CAD8B212ADCC0A8E40F5 /* Pods_Budget.framework */,
@@ -378,7 +380,7 @@
 		8340BBDE20C8CA6D00D97447 /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastSwiftUpdateCheck = 0940;
+				LastSwiftUpdateCheck = 1000;
 				LastUpgradeCheck = 0940;
 				ORGANIZATIONNAME = "Mike Kari Anderson";
 				TargetAttributes = {
